@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Class</title>
+  <style>
+    .submitted-data {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      position: relative;
+    }
+    .submitted-data p {
+      margin-bottom: 5px;
+    }
+    .submitted-data img {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+    .submitted-data button {
+      margin-right: 10px;
+    }
+    
+  </style>
+</head>
+<body>
+  <h1>Create Class</h1>
+  <form id="createClassForm">
+    <label for="className">Class Name:</label><br>
+    <input type="text" id="className" name="className" required><br><br>
+
+    <label for="description">Description:</label><br>
+    <textarea id="description" name="description" rows="4" required></textarea><br><br>
+
+    <label for="schedules">Schedules:</label><br>
+    <input type="text" id="schedules" name="schedules" placeholder="Comma separated list, e.g., Monday,Wednesday" required><br><br>
+
+    <label for="cost">Cost:</label><br>
+    <input type="number" id="cost" name="cost" step="0.01" required><br><br>
+
+    <label for="picture">Picture:</label><br>
+    <input type="file" id="picture" name="picture" accept="image/*" required><br><br>
+
+    <button type="submit">Create Class</button>
+  </form>
+
+  <div id="responseMessage"></div>
+
+  <div id="editModal" class="modal">
+    <h2>Edit CLASSES</h2>
+    <form id="editMembershipForm">
+        <input type="hidden" id="editId">
+        <label for="editName">Name:</label>
+        <input type="text" id="editName" class="emailInput" name="editName" required><br><br>
+        
+        <label for="editItems">Items (comma-separated):</label>
+        <input type="text" id="editItems" class="emailInput" name="editItems" required><br><br>
+        
+        <label for="editItems">Items (comma-separated):</label>
+        <input type="text" id="editdescription" class="emailInput" name="editItems" required><br><br>
+
+        <label for="editCost">Cost:</label>
+        <input type="number" id="editCost" class="emailInput" name="editCost" required><br><br>
+        
+        <button type="submit" class="emailInput">Update CLASSES</button>
+        <button type="button" id="cancelEdit" class="emailInput">Cancel</button>
+    </form>
+</div>
+
+  <div id="classesContainer">
+    <!-- This will hold the list of submitted classes -->
+  </div>
+
+  <script>
+    document.getElementById('createClassForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      const name = document.getElementById('className').value;
+      const description = document.getElementById('description').value;
+      const schedules = document.getElementById('schedules').value.split(',').map(item => item.trim());
+      const cost = document.getElementById('cost').value;
+      const picture = document.getElementById('picture').files[0];
+
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('schedules', schedules.join(','));
+      formData.append('cost', cost);
+      formData.append('picture', picture);
+
+      const response = await fetch('https://vigorgym.onrender.com/classes/postClass', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        document.getElementById('responseMessage').innerText = 'Class created successfully!';
+        fetchAndDisplayClasses(); // Fetch and display the updated list of classes
+      } else {
+        const error = await response.json();
+        document.getElementById('responseMessage').innerText = error.message;
+      }
+    });
+
+    async function fetchAndDisplayClasses() {
+      const response = await fetch('https://vigorgym.onrender.com/classes/getClass');
+      if (response.ok) {
+        const classes = await response.json();
+        displayClasses(classes);
+      } else {
+        document.getElementById('responseMessage').innerText = 'Failed to fetch classes.';
+      }
+    }
+
+    function displayClasses(classes) {
+      const container = document.getElementById('classesContainer');
+      container.innerHTML = ''; // Clear previous data
+
+      classes.forEach(cls => {
+        const classElement = document.createElement('div');
+        classElement.classList.add('submitted-data');
+
+        const className = document.createElement('p');
+        className.innerHTML = `<strong>Class Name:</strong> ${cls.name}`;
+        classElement.appendChild(className);
+
+        const classDescription = document.createElement('p');
+        classDescription.innerHTML = `<strong>Description:</strong> ${cls.description}`;
+        classElement.appendChild(classDescription);
+
+        const classSchedules = document.createElement('p');
+        classSchedules.innerHTML = `<strong>Schedules:</strong> ${cls.schedules.join(', ')}`;
+        classElement.appendChild(classSchedules);
+
+        const classCost = document.createElement('p');
+        classCost.innerHTML = `<strong>Cost:</strong> ${cls.cost}`;
+        classElement.appendChild(classCost);
+
+        const editButton = document.createElement('button');
+        editButton.innerText = 'Edit';
+        editButton.onclick = () => editClass(cls);
+        classElement.appendChild(editButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Delete';
+        deleteButton.onclick = () => deleteClass(cls.id);
+        classElement.appendChild(deleteButton);
+
+        container.appendChild(classElement);
+      });
+    }
+//////////////////////////////////yrtdjfukgjh
+//////////////////////////////////////////
+function editClass(classes) {
+    document.getElementById('editId').value = classes.id;
+    document.getElementById('editName').value = classes.name;
+    document.getElementById('editdescription').value = classes.description;
+    document.getElementById('editItems').value = classes.schedules.join(', ');
+    document.getElementById('editCost').value = classes.cost;
+
+    const editModal = document.getElementById('editModal');
+    editModal.classList.add('active');
+}
+
+document.getElementById('editMembershipForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('editId').value;
+    const name = document.getElementById('editName').value;
+    const description = document.getElementById('editdescription').value;
+    const schedules = document.getElementById('editItems').value.split(',').map(item => item.trim());
+    const cost = document.getElementById('editCost').value;
+
+    const updatedClass = {
+        id: id,
+        name: name,
+        description: description,
+        schedules: schedules,
+        cost: parseFloat(cost)
+    };
+
+    try {
+        const response = await fetch(`https://vigorgym.onrender.com/classes/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedClass)
+        });
+
+        if (response.ok) {
+            alert('Membership updated successfully!');
+            const editModal = document.getElementById('editModal');
+            editModal.classList.remove('active');
+            fetchAndDisplayClasses(); 
+        } else {
+            const error = await response.json();
+            alert('Failed to update membership: ' + error.message);
+        }
+    } catch (error) {
+        alert('An error occurred: ' + error.message);
+    }
+});
+
+document.getElementById('cancelEdit').addEventListener('click', function() {
+    const editModal = document.getElementById('editModal');
+    editModal.classList.remove('active');
+});
+/////////////////////////////////
+/////////////////////////////////////////////////////
+////////////////////////////////////////
+
+
+
+//     async function editClass(cls) {
+//   document.getElementById('editClassName').value = cls.name;
+//   document.getElementById('editDescription').value = cls.description;
+//   document.getElementById('editSchedules').value = cls.schedules.join(', ');
+//   document.getElementById('editCost').value = cls.cost;
+
+//   // Remove the existing form submit event listener if any
+//   document.getElementById('editClassForm').removeEventListener('submit', handleEditFormSubmit);
+
+//   // Define the function for handling form submission
+//   async function handleEditFormSubmit(e) {
+//     e.preventDefault();
+//     const formData = new FormData();
+//     const name = document.getElementById('editClassName').value;
+//     const description = document.getElementById('editDescription').value;
+//     const schedules = document.getElementById('editSchedules').value.split(',').map(item => item.trim());
+//     const cost = document.getElementById('editCost').value;
+//     const picture = document.getElementById('editPicture').files[0];
+
+//     formData.append('name', name);
+//     formData.append('description', description);
+//     formData.append('schedules', schedules.join(','));
+//     formData.append('cost', cost);
+//     if (picture) {
+//       formData.append('picture', picture);
+//     }
+
+//     const response = await fetch(`https://vigorgym.onrender.com/classes/${cls.id}`, {
+//       method: 'PUT',
+//       body: formData
+//     });
+
+//     if (response.ok) {
+//       document.getElementById('editResponseMessage').innerText = 'Class updated successfully!';
+//       fetchAndDisplayClasses(); // Fetch and display the updated list of classes
+//     } else {
+//       const error = await response.json();
+//       document.getElementById('editResponseMessage').innerText = error.message;
+//     }
+//   }
+
+//   // Add the new event listener for form submit to handle the update
+//   document.getElementById('editClassForm').addEventListener('submit', handleEditFormSubmit, { once: true }); // Ensure this event listener is added only once
+// }
+
+    async function deleteClass(classId) {
+      const confirmed = confirm('Are you sure you want to delete this class?');
+      if (confirmed) {
+        const response = await fetch(`https://vigorgym.onrender.com/classes/${classId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          document.getElementById('responseMessage').innerText = 'Class deleted successfully!';
+          fetchAndDisplayClasses(); // Fetch and display the updated list of classes
+        } else {
+          const error = await response.json();
+          document.getElementById('responseMessage').innerText = error.message;
+        }
+      }
+    }
+
+    // Fetch and display classes when the page loads
+    window.onload = fetchAndDisplayClasses;
+  </script>
+</body>
+</html>

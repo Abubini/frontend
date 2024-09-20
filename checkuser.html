@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> CHECK USER</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="home.css">
+    <link rel="icon" href="logo_top.png" type="image/png" sizes="16x16">
+    <style>
+        main{
+            padding-top:200px;
+             color:white;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+        }
+        .navs{
+            width:100%;
+            }
+        
+        .navigation{
+            width:90%;
+            }
+        #statusResult {
+        margin-top: 30px;
+            width: 600px;
+            height: 200px;
+            background-color: rgba(49, 49, 48, 0.3);
+            display:flex;
+        }
+        #checkUserForm {
+            display:flex;
+            gap: 15px;
+            align-items:center;
+        }
+        #emailInput {
+            width: 30em;
+            height: 2em;
+            background-color: rgba(79, 79, 78, 0.3);
+            border: none;
+            color:white;
+        }
+        #emailInput:hover {
+            border: 1px solid white;
+        }
+        #button {
+        width:15em;
+                height:2em;
+                background-color: rgba(79, 79, 78, 0.3);
+                color:white;
+        }
+
+    </style>
+
+</head>
+<body>
+<header>
+    <div class="logo">
+        <a href="admin.html"><img src="logo_new.png" alt="company logo"></a>
+    </div>
+    <div class="navs">
+        <div class="navigation">
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+
+
+        </div>
+        <div class="nav-container">
+   <button class="open-btn" onclick="openNav()">☰</button>
+    <nav id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">×</a>
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+        </nav>
+        </div>
+
+    </div>
+</header>
+
+<main >
+    <h1>Check User Status</h1>
+
+    <form id="checkUserForm">
+        <label for="emailInput">email:</label>
+        <input type="email" id="emailInput" >
+        <button type="submit" id="button">Check Status</button>
+    </form>
+
+    <div id="statusResult">
+        <h1 id="membershipType"></h1>
+        <p id="statusmessage" style="margin-left: 15px; ">result</p>
+    </div>
+
+</main>
+
+<script>
+        function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+    document.addEventListener('DOMContentLoaded', async () => {
+  const token = sessionStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = 'adlog.html';
+    return;
+  }
+    document.getElementById('checkUserForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const statusResult = document.getElementById('statusResult');
+    const statusmessage = document.getElementById('statusmessage');
+    const membershipType = document.getElementById('membershipType');
+    const email = document.getElementById('emailInput').value.trim();
+    if (!email) {
+        statusResult.style.backgroundColor = 'rgba(49, 49, 48, 0.3)';
+        statusmessage.innerText = 'Please enter your email.';
+        statusResult.style.justifyContent = 'left';
+                    statusResult.style.alignItems = 'flex-start';
+        return;
+    }
+
+    try {
+        const response = await fetch(`https://vigorgym.onrender.com/users/checkStatus?email=${encodeURIComponent(email)}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch user status. or user not found');
+        }
+
+        const userData = await response.json();
+
+
+        if (userData.isPayed) {
+        statusResult.style.backgroundColor = 'green';
+       
+            statusmessage.innerText = 'You are free to go.';
+             statusResult.style.justifyContent = 'center';
+                    statusResult.style.alignItems = 'center';
+
+        } else {
+            statusResult.style.backgroundColor = 'red';
+            
+            statusmessage.innerText = 'Your membership is expired.';
+            statusResult.style.justifyContent = 'left';
+                    statusResult.style.alignItems = 'flex-start';
+        }
+
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        statusResult.style.backgroundColor = 'rgba(49, 49, 48, 0.3)';
+        statusmessage.innerText = error.message;
+        statusResult.style.justifyContent = 'left';
+                    statusResult.style.alignItems = 'flex-start';
+    }
+});
+    });
+
+    </script>
+</body>
+</html>

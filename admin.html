@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ADMIN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="home.css">
+    <link rel="icon" href="logo_top.png" type="image/png" sizes="16x16">
+    <style>
+        .navs{
+            width:100%;
+            }
+        
+        .navigation{
+            width:90%;
+            }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+         td {
+            border: 1px solid gray;
+            padding: 8px;
+            text-align: left;
+        }
+        td:hover{
+            border: 2px solid white;
+            }
+        th {
+            background-color: #f2f2f2;
+            color:black;
+            text-align:center;
+            border: 1px solid black;
+            padding: 8px;
+        }
+    </style>
+
+</head>
+<body>
+<header>
+    <div class="logo">
+        <a href="admin.html"><img src="logo_new.png" alt="company logo"></a>
+    </div>
+    <div class="navs">
+        <div class="navigation">
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+
+
+        </div>
+        <div class="nav-container">
+   <button class="open-btn" onclick="openNav()">☰</button>
+    <nav id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">×</a>
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+        </nav>
+        </div>
+
+    </div>
+</header>
+
+<main style="padding-top:80px; color:white;">
+    <h1>Company List</h1>
+    <table id="companyTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Plan</th>
+                <th>Email</th>
+                <th>company code</th>
+                <th>number of people</th>
+                <th>active members</th>
+                <th>registration time</th>
+                <th>is active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Company data will be inserted here -->
+        </tbody>
+    </table>
+
+
+    <h1>user List</h1>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>first name</th>
+                <th>last name</th>
+                <th>Email</th>
+                <th>username</th>
+                <th>password</th>
+                <th>company name</th>
+                <th>membership type</th>
+                <th>company code</th>
+                <th>registration tyme</th>
+                <th>is active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Company data will be inserted here -->
+        </tbody>
+    </table>
+
+
+
+
+    <h1>Company List</h1>
+    <table id="classTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>class name</th>
+                <th>registration time</th>
+                <th>is active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Company data will be inserted here -->
+        </tbody>
+
+    </table>
+</main>
+
+<script>
+        function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const token = sessionStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = 'adlog.html';
+    return;
+  }
+     async function fetchCompanies() {
+    try {
+        // Fetch companies
+        const response1 = await fetch('https://vigorgym.onrender.com/companies/getCompany');
+        const companies = await response1.json();
+        const companyTableBody = document.getElementById('companyTable').getElementsByTagName('tbody')[0];
+
+        companies.forEach(company => {
+            const row = companyTableBody.insertRow();
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+            const cell4 = row.insertCell(3);
+            const cell5 = row.insertCell(4);
+            const cell6 = row.insertCell(5);
+            const cell7 = row.insertCell(6);
+            const cell8 = row.insertCell(7);
+            const cell9 = row.insertCell(8);
+
+            cell1.innerText = company.id;
+            cell2.innerText = company.name;
+            cell3.innerText = company.plan;
+            cell4.innerText = company.email;
+            cell5.innerText = company.companyCode;
+            cell6.innerText = company.numberOfPeople;
+            cell7.innerText = company.activeMembers;
+            cell8.innerText = new Date(company.registrationTime).toLocaleString();
+            cell9.innerText = company.isPayed;
+        });
+
+        // Fetch users
+        const response2 = await fetch('https://vigorgym.onrender.com/users/getusers');
+        const users = await response2.json();
+        const userTableBody = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+
+        users.forEach(user => {
+            const row = userTableBody.insertRow();
+            const cell01 = row.insertCell(0);
+            const cell02 = row.insertCell(1);
+            const cell03 = row.insertCell(2);
+            const cell04 = row.insertCell(3);
+            const cell05 = row.insertCell(4);
+            const cell06 = row.insertCell(5);
+            const cell07 = row.insertCell(6);
+            const cell08 = row.insertCell(7);
+            const cell09 = row.insertCell(8);
+            const cell10 = row.insertCell(9);
+            const cell11 = row.insertCell(10);
+
+            cell01.innerText = user.id;
+            cell02.innerText = user.firstName;
+            cell03.innerText = user.lastName;
+            cell04.innerText = user.email;
+            cell05.innerText = user.username;
+            cell06.innerText = user.password;
+            cell07.innerText = user.companyName;
+            cell08.innerText = user.membershipType;
+            cell09.innerText = user.companyCode;
+            cell10.innerText = new Date(user.registrationTime).toLocaleString();
+            cell11.innerText = user.isPayed;
+        });
+
+        // Fetch classes
+        const response3 = await fetch('https://vigorgym.onrender.com/class/getclass');
+        const classes = await response3.json();
+        const classTableBody = document.getElementById('classTable').getElementsByTagName('tbody')[0];
+
+        classes.forEach(classData => {
+            const row = classTableBody.insertRow();
+            const cell001 = row.insertCell(0);
+            const cell002 = row.insertCell(1);
+            const cell003 = row.insertCell(2);
+            const cell004 = row.insertCell(3);
+            const cell005 = row.insertCell(4);
+
+            cell001.innerText = classData.id;
+            cell002.innerText = classData.email;
+            cell003.innerText = classData.classname;
+            cell004.innerText = new Date(classData.registrationTime).toLocaleString();
+            cell005.innerText = classData.isPayed;
+        });
+
+    } catch (error) {
+        console.error('Error fetching companies, users, or classes:', error);
+    }
+}
+
+
+
+
+
+
+// Fetch companies when the page loads
+window.onload = fetchCompanies;
+
+    });
+    </script>
+</body>
+</html>

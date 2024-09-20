@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classes</title>
+  <style>
+    .class {
+      display: flex;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .class img {
+      max-width: 150px;
+      margin-right: 20px;
+    }
+    .class-detail {
+      flex: 1;
+    }
+    .class-title {
+      margin-top: 0;
+    }
+    .schedule {
+      list-style: none;
+      padding: 0;
+    }
+    .schedule li {
+      margin-bottom: 5px;
+    }
+    .birr {
+      font-weight: bold;
+    }
+    .card-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="classes-container"></div>
+
+  <script>
+    async function fetchClasses() {
+      const response = await fetch('http://localhost:3000/classes/getClass');
+      const classes = await response.json();
+
+      const container = document.getElementById('classes-container');
+      container.innerHTML = '';
+
+      classes.forEach(cls => {
+        const classElement = document.createElement('div');
+        classElement.className = 'class';
+
+        const classPicture = document.createElement('img');
+        classPicture.src = '/uploads/' + cls.picture;
+        
+
+        const details = document.createElement('div');
+        details.className = 'class-detail';
+
+        const title = document.createElement('h2');
+        title.className = 'class-title';
+        title.textContent = cls.name;
+
+        const description = document.createElement('p');
+        description.className = 'class-description';
+        description.textContent = cls.description;
+
+        const scheduleList = document.createElement('ul');
+        scheduleList.className = 'schedule';
+        cls.schedules.forEach(schedule => {
+          const scheduleItem = document.createElement('li');
+          scheduleItem.textContent = schedule;
+          scheduleList.appendChild(scheduleItem);
+        });
+
+        const cost = document.createElement('p');
+        cost.className = 'class-description';
+        cost.innerHTML = `Drop-in rate: <b class="birr">${cls.cost}</b> birr/month.`;
+
+        const button = document.createElement('button');
+        button.className = 'card-button';
+        button.textContent = 'Join class';
+        button.onclick = () => {
+          // Add your class joining logic here
+          alert(`Joining ${cls.name}`);
+        };
+
+        details.appendChild(title);
+        details.appendChild(description);
+        details.appendChild(scheduleList);
+        details.appendChild(cost);
+        details.appendChild(button);
+
+        classElement.appendChild(classPicture);
+        classElement.appendChild(details);
+        container.appendChild(classElement);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchClasses);
+  </script>
+</body>
+</html>

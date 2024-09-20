@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Business Membership Form</title>
+    <link rel="stylesheet" href="bm-form.css">
+    <link rel="icon" href="logo_top.png" type="image/png" sizes="16x16">
+    <style>
+        .chapaform {
+            display: none;
+
+        }
+        #chapa-form {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="business-membership-form" id="companyForm">
+    <h1>Business Membership Form</h1>
+    <p class="little-description">Welcome back to our business membership! To sign up, just provide your company email, name, and select a plan type. Please note, we require a minimum of 10 employees for eligibility. Plus, enjoy a 10% discount if your employee count exceeds 20!</p>
+    <form id="business-membership-form">
+        <input type="text" class="long" name="company-name" id="company-name" autocomplete="complete" placeholder="Your company name" required>
+        <input type="email" class="long" name="company-email" id="company-email" autocomplete="complete" placeholder="Your company email" required>
+        <select class="long" name="plan-type" id="plan-type">
+            
+        </select>
+        <div class="short-container">
+            <input type="number" class="short" name="number-of-employee" id="number-of-employee" autocomplete="complete" value="10" min="1" placeholder="No. of employees" required>
+            <button class="short enroll-button" id="enroll" type="submit">Enroll</button>
+        </div>
+    </form>
+</div>
+
+<div class="business-membership-form chapaform" id="chapaForm">
+    <h1>Your Chapa Payment Credentials</h1>
+    <p class="little-description">Please enter your Chapa payment credentials below. While it is not mandatory to provide your first name, last name, and phone number, we highly recommend including all these details to ensure a smooth and secure transaction. If you don't already have a Chapa account, you can create one by clicking the link below.</p>
+    <form id="chapa-form">
+        <input type="text" class="long" name="first_name" id="first_name" autocomplete="complete" placeholder="First name" >
+        <input type="text" class="long" name="last_name" id="last_name" autocomplete="complete" placeholder="Last name" >
+        <input type="email" class="long" name="cemail" id="cemail" autocomplete="complete" placeholder="Email" required>
+        <input type="text" class="long" name="phone_number" id="phone_number" autocomplete="complete" placeholder="Phone number">
+        <input type="text" class="long" name="tx_ref" id="tx_ref" autocomplete="complete" placeholder="Your payment reference" required>
+        <p id="message"></p>
+        <button class="enroll-button" type="submit">Pay</button>
+    </form>
+    <p>if you don't have a chapa account <a href="https://dashboard.chapa.co/register" target="_blank" style="color:white;">create one here</a></p>
+</div>
+
+<script>
+    document.getElementById('business-membership-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting in the traditional way
+        document.getElementById('companyForm').classList.add('chapaform');
+        document.getElementById('chapaForm').classList.remove('chapaform');
+    });
+
+    const registrationForm = document.getElementById('chapa-form');
+    registrationForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('company-email').value;
+        const name = document.getElementById('company-name').value;
+        const numberOfPeople = document.getElementById('number-of-employee').value;
+        const plan = document.getElementById('plan-type').value;
+        const errorMessageElement = document.getElementById('message');
+
+        const cemail = document.getElementById('cemail').value;
+        const first_name = document.getElementById('first_name').value;
+        const last_name = document.getElementById('last_name').value;
+        const phone_number = document.getElementById('phone_number').value;
+        const tx_ref = document.getElementById('tx_ref').value;
+
+        try {
+            // Simulate payment success
+            const paymentSuccessful = true; // Replace with actual payment logic
+
+            if (paymentSuccessful) {
+                const response = await fetch('https://vigorgym.onrender.com/companies/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, name, plan, numberOfPeople, first_name, last_name, cemail, phone_number, tx_ref }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    errorMessageElement.textContent = "Registration successful!";
+                } else {
+                    throw new Error(data.message);
+                }
+            } else {
+                throw new Error('Payment failed');
+            }
+        } catch (error) {
+            errorMessageElement.textContent = error.message;
+        }
+    });
+
+    async function fetchMemberships() {
+      try {
+        const response = await fetch('https://vigorgym.onrender.com/memberships'); // Adjust the URL as needed
+        const memberships = await response.json();
+
+        const selectElement = document.getElementById('plan-type');
+        memberships.forEach(membershipItem => {
+          const option = document.createElement('option');
+          option.value = membershipItem.name; // Adjust 'name' if your field is named differently
+          option.textContent = membershipItem.name; // Adjust 'name' if your field is named differently
+          selectElement.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error fetching classes:', error);
+      }
+    }
+
+    // Fetch classes when the page loads
+    window.onload = fetchMemberships;
+
+</script>
+</body>
+</html>

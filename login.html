@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>log in</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="icon" href="logo_top.png" type="image/png" sizes="16x16">
+</head>
+<body>
+
+<div class="flip-card">
+    <div class="registration-form">
+        <div class="log-in-form">
+
+           <h1>log in</h1>
+  <form id="login-form">
+    <input type="email" class="longinput" name="loginemail" id="loginemail" autocomplete="complete" placeholder="your email" required>
+    <input type="password" class="longinput" id="loginpassword" name="loginpassword" placeholder="password" required>
+      <p id="login_message"></p>
+       <div class="button-container">
+    <button class="button">log in</button>
+           </div>
+  </form>
+    <p>i dont have an account <b onclick="flipCard() " class="flip">sign up</b></p>
+    <button class="longinput google" ><img src="google-logo.png" id="google-logo1" style="width:2em; height:2em;">continue with google</button>
+        </div>
+        <div class="sign-up-form">
+            <h1>sign up</h1>
+    <form id="signup-form">
+      <input type="email" class="longinput" name="email" id="email" autocomplete="complete" placeholder="your email" required>
+      <div class="shortinput-container">
+        <input type="text" class="shortinput" name="firstName" id="firstName" autocomplete="complete" placeholder="first name" required>
+         <input type="text" class="shortinput" name="lastName" id="lastName" autocomplete="complete" placeholder="last name"required>
+      </div>
+      <input type="text" class="longinput" name="username" id="username" autocomplete="complete" placeholder="username" required>
+       <div class="shortinput-container">
+        <input type="password" class="shortinput" id="password" name="password" placeholder="password" required>
+         <input type="password" class="shortinput" id="confirmPassword" name="confirmPassword" placeholder="confirm password" required>
+      </div>
+        <span id="message" style="color: red;"></span>
+        <span id="lengthMessage" style="color: red;"></span>
+        <div class="check">
+            <input type="checkbox" class="checkbox" id="check-box">
+      <label for="check-box">signup with company code</label>
+        </div>
+      <input type="text" class="longinput hidden" id="company-code" name="companyCode" autocomplete="none" placeholder="your company code" minlength="10" maxlength="10">
+        <p id="text"></p>
+        <div class="button-container">
+      <button class="button">sign up</button>
+            </div>
+    </form>
+            <p>i have already an account <b onclick="flipCard()" class="flip">log in</b></p>
+    <button class="longinput google" ><img src="google-logo.png" id="google-logo" style="width:2em; height:2em;">continue with google</button>
+                    </div>
+
+
+            </div>
+
+        </div>
+
+
+
+
+
+
+<script>
+  function flipCard() {
+    var card = document.querySelector('.flip-card');
+    card.classList.toggle('flipped');
+}
+
+const checkbox = document.getElementById('check-box');
+const inputContainer = document.getElementById('company-code');
+
+checkbox.addEventListener('change', function() {
+    if (checkbox.checked) {
+        inputContainer.classList.remove('hidden');
+        inputContainer.required = true;
+    } else {
+        inputContainer.classList.add('hidden');
+        inputContainer.required = false; // Ensure it's not required when hidden
+    }
+});
+
+document.getElementById('signup-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value; // corrected variable name
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const companyCode = document.getElementById('company-code').value; // corrected variable name
+    const text = document.getElementById('text');
+
+    if (password !== confirmPassword) { // corrected variable name
+        document.getElementById("message").textContent = "Passwords do not match";
+        document.getElementById("lengthMessage").textContent = "";
+    } else {
+        if (password.length < 8) {
+            document.getElementById("message").textContent = "";
+            document.getElementById("lengthMessage").textContent = "Password should be at least 8 characters long";
+        }
+    }
+
+    try {
+        const response = await fetch('https://vigorgym.onrender.com/users/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password,
+                firstName: firstName, // corrected key
+                lastName: lastName,   // corrected key
+                companyCode: companyCode // corrected key
+            })
+        });
+
+        if (response.ok) {
+            text.textContent = 'Register successfully!!'; // corrected text
+            text.style.color = 'green';
+            event.target.submit();
+        } else {
+            const errorData = await response.json();
+            text.textContent = `${errorData.message}`;
+            text.style.color = 'red';
+        }
+    } catch (error) {
+        text.textContent = 'An error occurred. Please try again.';
+        text.style.color = 'red';
+    }
+});
+document.getElementById('login-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = document.getElementById('loginemail').value;
+        const password = document.getElementById('loginpassword').value;
+
+        const response = await fetch('https://vigorgym.onrender.com/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+             })
+        });
+
+        const result = await response.json();
+
+        if (result.access_token) {
+            sessionStorage.setItem('token', result.access_token);
+            document.getElementById('login_message').innerText = 'log in seccesfully';
+            document.getElementById('login_message').style.color = 'green';
+            window.location.href = 'home.html';
+        } else {
+            document.getElementById('login_message').innerText = 'incorrect email or password';
+            document.getElementById('login_message').style.color = 'red';
+        }
+    });
+
+
+
+</script>
+
+</body>
+</html>

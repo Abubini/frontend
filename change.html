@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> CHANGE PASSWORD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="home.css">
+    <link rel="icon" href="logo_top.png" type="image/png" sizes="16x16">
+    <style>
+        main{
+            padding-top:200px;
+             color:white;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+        }
+        .navs{
+            width:100%;
+            }
+        
+        .navigation{
+            width:90%;
+            }
+
+        #codeForm{
+            display:flex;
+            flex-direction:column;
+            gap: 15px;
+            align-items:center;
+        }
+        .Input {
+            width: 30em;
+            height: 2em;
+            background-color: rgba(79, 79, 78, 0.3);
+            border: none;
+            color:white;
+        }
+        .Input:hover {
+            border: 1px solid white;
+        }
+        #button {
+        width:15em;
+                height:2em;
+                background-color: rgba(79, 79, 78, 0.3);
+                color:white;
+        }
+
+    </style>
+
+</head>
+<body>
+<header>
+    <div class="logo">
+        <a href="admin.html"><img src="logo_new.png" alt="company logo"></a>
+    </div>
+    <div class="navs">
+        <div class="navigation">
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+
+
+        </div>
+        <div class="nav-container">
+   <button class="open-btn" onclick="openNav()">☰</button>
+    <nav id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">×</a>
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+        </nav>
+        </div>
+
+    </div>
+</header>
+
+<main >
+    <div class="container">
+    <form id="codeForm">
+
+        <input type="email" class="Input" id="email" name="email" placeholder="email" >
+
+        <input type="password" class="Input" id="password" name="password" placeholder=" new password" >
+        <input type="password" class="Input" id="confirmpassword" name="confirmpassword" placeholder="confirm new password" >
+
+        <p id="message"></p>
+        <button type="submit" class="button" id="button">Submit</button>
+    </form>
+        </div>
+</main >
+
+    <script>
+
+        function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+        document.addEventListener('DOMContentLoaded', async () => {
+  const token = sessionStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = 'adlog.html';
+    return;
+  }
+        document.getElementById('codeForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmpassword = document.getElementById('confirmpassword').value;
+
+    if (!email || !password || !confirmpassword ) {
+        document.getElementById('message').innerText = 'please enter both username and passcode';
+        document.getElementById('message').style.color = 'red';
+        return;
+    }
+    if (password !== confirmpassword){
+        document.getElementById('message').innerText = 'password must match';
+        document.getElementById('message').style.color = 'red';
+        return;
+    }
+
+
+    try {
+        const response = await fetch(`https://vigorgym.onrender.com/users/changepassword/${email}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ password }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('message').innerText = 'Password change successful!';
+            document.getElementById('message').style.color = 'green';
+            window.location.href = 'change.html';
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        document.getElementById('message').innerText = error.message;
+    }
+});
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> ADD MEMBERSHIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="home.css">
+    <link rel="icon" href="logo_top.png" type="image/png" sizes="16x16">
+    <style>
+        main{
+            padding-top:100px;
+             color:white;
+           
+        }
+        .navs{
+            width:100%;
+            }
+        
+        .navigation{
+            width:90%;
+            }
+            .membership {
+            border: 1px solid #ffffff;
+            padding: 20px;
+            margin: 20px;
+        }
+        .lists {
+            
+            padding: 0px 0px 0px 50px;
+            font-size: 1.5em;
+        }
+        .list-item {
+            margin: 5px 0;
+        }
+        .price {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgb(39, 37, 37);
+            padding: 20px;
+            border: 1px solid #000;
+        }
+        .modal.active {
+            display: block;
+        }
+
+        .emailInput {
+            width: 30em;
+            height: 2em;
+            background-color: rgba(79, 79, 78, 0.3);
+            border: none;
+            color:white;
+        }
+        .emailInput:hover {
+            border: 1px solid white;
+        }
+        #button {
+        width:15em;
+                height:2em;
+                background-color: rgba(79, 79, 78, 0.3);
+                color:white;
+        }
+        
+
+    </style>
+
+</head>
+<body>
+<header>
+    <div class="logo">
+        <a href="admin.html"><img src="logo_new.png" alt="company logo"></a>
+    </div>
+    <div class="navs">
+        <div class="navigation">
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+
+
+        </div>
+        <div class="nav-container">
+   <button class="open-btn" onclick="openNav()">☰</button>
+    <nav id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">×</a>
+            <a href="admin.html">DATAS</a>
+            <a href="checkuser.html">CHECK USER</a>
+            <a href="checkclass.html">CHECK CLASS</a>
+            <a href="change.html">CHANGE PASSWORD</a>
+            <a href="postBlog.html">POST BLOG</a>
+            <a href="addmembership.html">ADD MEMBERSHIP</a>
+            <a href="addclass.html">ADD CLASS</a>
+        </nav>
+        </div>
+
+    </div>
+</header>
+
+<main >
+    <h1>Add Membership</h1>
+    <form id="membershipForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" class="emailInput" name="name" required><br><br>
+        
+        <label for="items">Items (comma-separated):</label>
+        <input type="text" id="items" name="items" class="emailInput" required><br><br>
+        
+        <label for="cost">Cost:</label>
+        <input type="number" id="cost" name="cost" class="emailInput" required><br><br>
+        
+        <button type="submit" id="button">Add Membership</button>
+    </form>
+
+    <h2>Memberships</h2>
+    <div id="membershipsContainer"></div>
+
+    <!-- Edit Membership Modal -->
+    <div id="editModal" class="modal">
+        <h2>Edit Membership</h2>
+        <form id="editMembershipForm">
+            <input type="hidden" id="editId">
+            <label for="editName">Name:</label>
+            <input type="text" id="editName" class="emailInput" name="editName" required><br><br>
+            
+            <label for="editItems">Items (comma-separated):</label>
+            <input type="text" id="editItems" class="emailInput" name="editItems" required><br><br>
+            
+            <label for="editCost">Cost:</label>
+            <input type="number" id="editCost" class="emailInput" name="editCost" required><br><br>
+            
+            <button type="submit" class="emailInput">Update Membership</button>
+            <button type="button" id="cancelEdit" class="emailInput">Cancel</button>
+        </form>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal" style=" gap: 10px;">
+        <h2>Are you sure you want to delete this membership?</h2>
+        <button id="confirmDelete" class="emailInput">Yes</button>
+        <button id="cancelDelete" class="emailInput">No</button>
+    </div>
+
+</main>
+
+<script>
+        function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+    document.addEventListener('DOMContentLoaded', async () => {
+  const token = sessionStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = 'adlog.html';
+    return;
+  }
+  document.getElementById('membershipForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const items = document.getElementById('items').value.split(',').map(item => item.trim());
+    const cost = document.getElementById('cost').value;
+
+    const membership = {
+        name: name,
+        items: items,
+        cost: cost
+    };
+
+    try {
+        const response = await fetch('https://vigorgym.onrender.com/memberships/addmembership', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(membership)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert('Membership added successfully!');
+            console.log(result);
+            fetchMemberships();
+        } else {
+            const error = await response.json();
+            alert('Failed to add membership: ' + error.message);
+        }
+    } catch (error) {dfihkdsfhgbvdhfgbv, ygsduj
+        alert('An error occurred: ' + error.message);
+    }
+});
+
+async function fetchMemberships() {
+    try {
+        const response = await fetch('https://vigorgym.onrender.com/memberships');
+        if (response.ok) {
+            const memberships = await response.json();
+            displayMemberships(memberships);
+        } else {
+            const error = await response.json();
+            alert('Failed to fetch memberships: ' + error.message);
+        }
+    } catch (error) {
+        alert('An error occurred: ' + error.message);
+    }
+}
+
+function displayMemberships(memberships) {
+    const container = document.getElementById('membershipsContainer');
+    container.innerHTML = '';
+    memberships.forEach(membership => {
+        const membershipDiv = document.createElement('div');
+        membershipDiv.className = 'membership';
+        
+        const title = document.createElement('h2');
+        title.textContent = membership.name;
+        membershipDiv.appendChild(title);
+        
+        const itemList = document.createElement('ul');
+        itemList.className = 'lists';
+        membership.items.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.className = 'list-item';
+            listItem.textContent = item;
+            itemList.appendChild(listItem);
+        });
+        membershipDiv.appendChild(itemList);
+        
+        const price = document.createElement('p');
+        price.className = 'price';
+        price.innerHTML = `<b>${membership.cost.toLocaleString()}</b><small> ETB/month</small>`;
+        membershipDiv.appendChild(price);
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.className = 'emailInput';
+        editButton.addEventListener('click', () => editMembership(membership));
+        membershipDiv.appendChild(editButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'emailInput';
+        deleteButton.addEventListener('click', () => confirmDelete(membership.id));
+        membershipDiv.appendChild(deleteButton);
+        
+        container.appendChild(membershipDiv);
+    });
+}
+
+function editMembership(membership) {
+    document.getElementById('editId').value = membership.id;
+    document.getElementById('editName').value = membership.name;
+    document.getElementById('editItems').value = membership.items.join(', ');
+    document.getElementById('editCost').value = membership.cost;
+
+    const editModal = document.getElementById('editModal');
+    editModal.classList.add('active');
+}
+
+document.getElementById('editMembershipForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('editId').value;
+    const name = document.getElementById('editName').value;
+    const items = document.getElementById('editItems').value.split(',').map(item => item.trim());
+    const cost = document.getElementById('editCost').value;
+
+    const updatedMembership = {
+        id: id,
+        name: name,
+        items: items,
+        cost: parseFloat(cost)
+    };
+
+    try {
+        const response = await fetch(`https://vigorgym.onrender.com/memberships/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedMembership)
+        });
+
+        if (response.ok) {
+            alert('Membership updated successfully!');
+            const editModal = document.getElementById('editModal');
+            editModal.classList.remove('active');
+            fetchMemberships();
+        } else {
+            const error = await response.json();
+            alert('Failed to update membership: ' + error.message);
+        }
+    } catch (error) {
+        alert('An error occurred: ' + error.message);
+    }
+});
+
+document.getElementById('cancelEdit').addEventListener('click', function() {
+    const editModal = document.getElementById('editModal');
+    editModal.classList.remove('active');
+});
+
+let deleteMembershipId = null;
+
+function confirmDelete(id) {
+    deleteMembershipId = id;
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.classList.add('active');
+}
+
+document.getElementById('confirmDelete').addEventListener('click', async function() {
+    try {
+        const response = await fetch(`https://vigorgym.onrender.com/memberships/${deleteMembershipId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Membership deleted successfully!');
+            const deleteModal = document.getElementById('deleteModal');
+            deleteModal.classList.remove('active');
+            fetchMemberships();
+        } else {
+            const error = await response.json();
+            alert('Failed to delete membership: ' + error.message);
+        }
+    } catch (error) {
+        alert('An error occurred: ' + error.message);
+    }
+});
+
+document.getElementById('cancelDelete').addEventListener('click', function() {
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.classList.remove('active');
+});
+
+// Fetch memberships on page load
+fetchMemberships();
+
+    });
+    
+
+    </script>
+</body>
+</html>
