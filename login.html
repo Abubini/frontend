@@ -157,7 +157,7 @@ document.getElementById('login-form').addEventListener('submit', async (event) =
             sessionStorage.setItem('token', result.access_token);
             document.getElementById('login_message').innerText = 'log in seccesfully';
             document.getElementById('login_message').style.color = 'green';
-            window.location.href = 'home.html';
+            window.location.href = 'index.html';
         } else {
             document.getElementById('login_message').innerText = 'incorrect email or password';
             document.getElementById('login_message').style.color = 'red';
